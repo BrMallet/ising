@@ -19,7 +19,13 @@ enum SpinValue {
 
 //--------------------
 
+//Código do André
+
+//----------------------------
+
 // Flip de Spin
+
+
 
 fn negate_spin_value(v: &SpinValue) -> SpinValue {
     if *v == SpinValue::Positive {
@@ -63,7 +69,7 @@ fn should_change(delta: f64, t: f64) -> bool {
 
 //--------------------------
 
-
+//------------------------------------
 
 // Termos vizinhos
 
@@ -91,10 +97,10 @@ fn s_num(s: &SpinValue) -> f64 {
 
 
     if *s == SpinValue::Positive {
-        let h_1: f64 = -1.0;  
+        let h_1: f64 = 1.0;  
         h_1    
     } else {
-        let h_1: f64 = 1.0;        
+        let h_1: f64 = -1.0;        
         h_1
     }
     
@@ -106,13 +112,16 @@ fn s_num(s: &SpinValue) -> f64 {
 
 fn visinho_num (s: &SpinValue,s_visinho: &SpinValue) -> f64 {
     if *s == *s_visinho {
-        let h_1: f64 = -1.0;  
+        let h_1: f64 = 1.0;  
         h_1
     } else {
-        let h_1: f64 = 1.0;  
+        let h_1: f64 = -1.0;  
         h_1 
     }
 }
+
+
+
 
 //-------------------------
 
@@ -122,8 +131,8 @@ fn main() {
 
     // Montagem da rede
 
-    let net_size_r = 40; let net_size_c = 40;   
-    let root = BitMapBackend::gif("grafico/3.gif", (800, 600), 1_000).unwrap().into_drawing_area();
+    let net_size_r = 40; let net_size_c = 40; 
+    let root = BitMapBackend::gif("grafico0/ani.gif", (800, 600), 1_000).unwrap().into_drawing_area();
     
 
     //--------------------------------
@@ -141,36 +150,59 @@ fn main() {
 
     //-------------------------------
     
+    
+    //Inicio da contagem de T
+
+    for c in 0 .. 41 {
+
+        //Escala de T
+       
+        let mut t = c as f64 ;
+
+        t =t/10.0 ;
+
+        let grafico: bool;
+
+        if t == 1.0 || t == 2.4 || t == 3.8
+        {
+            grafico = true
+        }
+        else{
+            grafico = false
+        }
+
+        
     //Representação grafica dos spins
 
-    for c in 0 .. 50 {  
-
-        root.fill(&WHITE).unwrap(); 
-        let root = root.margin(10, 10, 10, 10);
+    let mut random_network = random_2d_network(net_size_r, net_size_c);
         
-
-        let mut chart = ChartBuilder::on(&root)
-            .caption(
-                format!("Temperatura = {} ", c*10),
-                ("sans-serif", 10),
+        
+        
+        root.fill(&WHITE).unwrap(); 
+        let root = root.margin(10, 10, 10, 10);     
+        
+        
+        if grafico == true {               
+    
+    
+            let mut chart = ChartBuilder::on(&root)
+            .caption(                
+            format!("Temperatura = {} ", t),
+            ("sans-serif", 10),
             )
             .build_cartesian_2d(0.0..40.0, 0.0..40.0).unwrap();
-       
-        
-
-
-        let mut random_network = random_2d_network(net_size_r, net_size_c);
-
             for i in 0 .. 40 {
                 for j in 0 .. 40{
 
                     let i_ind = i;
                     let j_ind = j;
-
+    
                     let s_ij = random_network[i_ind][j_ind].borrow();
                     
                     let k = i as f64;
                     let l = j as f64;
+                    
+                    
     
                     chart.draw_series(PointSeries::of_element(
                         vec![(k , l)],
@@ -187,16 +219,22 @@ fn main() {
                             
                         },
                     )).unwrap();
+    
+                    
                         
                 }
             }
-            root.present().unwrap();
+                root.present().unwrap();
+    
+        }
+        
+
+
+            
     //-----------------------------------------------
 
     //Montagems dos vetores de data
 
-        let mut t = c as f64 ;
-        t = t/10.0 ;
  
 
         
@@ -220,7 +258,7 @@ fn main() {
     
     //Loop -----------------------
 
-        for z in 0 .. 100000000   {        
+        for _z in 0 .. 400000000 {        
             
      
 
@@ -247,13 +285,8 @@ fn main() {
 
         //Calculo de Delta
 
-        let h_1 = s_num(s_ij)*2.0*h;
-        let h_2 = visinho_num(s_ij, s_iplus1_j)*2.0*j;
-        let h_3 = visinho_num(s_ij, s_iminus1_j)*2.0*j;
-        let h_4 = visinho_num(s_ij, s_i_jplus1)*2.0*j;
-        let h_5 = visinho_num(s_ij, s_ijminus1)*2.0*j;
 
-        let delta: f64 = -(h_1 + h_2 + h_3 + h_4 + h_5) ;
+        let delta: f64 = (s_num(s_ij)*h + visinho_num(s_ij, s_iplus1_j)*j + visinho_num(s_ij, s_iminus1_j)*j + visinho_num(s_ij, s_i_jplus1)*j + visinho_num(s_ij, s_ijminus1)*j)*2.0 ;
 
         //--------------------------
 
@@ -267,9 +300,22 @@ fn main() {
             }
         }
 
-        //Representação grafica em 3 intervalos
+        //Representação grafica no meio
+        
 
-        if z == 25000000 {
+/*
+        if z == 200000000 && grafico == true {     
+
+                    
+        
+        
+                let mut chart = ChartBuilder::on(&root)
+                .caption(                
+                format!("Temperatura = {} ", t),
+                ("sans-serif", 10),
+                )
+                .build_cartesian_2d(0.0..40.0, 0.0..40.0).unwrap();
+
             for i in 0 .. 40 {
                 for j in 0 .. 40{
 
@@ -280,7 +326,8 @@ fn main() {
                     
                     let k = i as f64;
                     let l = j as f64;
-    
+                    
+                    
                     chart.draw_series(PointSeries::of_element(
                         vec![(k , l)],
                         2,
@@ -296,77 +343,18 @@ fn main() {
                             
                         },
                     )).unwrap();
+
+                    
                         
                 }
             }
+
             root.present().unwrap();
+
 
         }
 
-        if z == 50000000 {
-            for i in 0 .. 40 {
-                for j in 0 .. 40{
-
-                    let i_ind = i;
-                    let j_ind = j;
-
-                    let s_ij = random_network[i_ind][j_ind].borrow();
-                    
-                    let k = i as f64;
-                    let l = j as f64;
-    
-                    chart.draw_series(PointSeries::of_element(
-                        vec![(k , l)],
-                        2,
-                        if *s_ij == SpinValue::Positive {                
-                        &RED
-                        }
-                        else {
-                            &GREEN
-                        },
-                        &|c, s, st| {
-                            return EmptyElement::at(c)   
-                            + Circle::new((0,0),s,st.filled()) 
-                            
-                        },
-                    )).unwrap();
-                        
-                }
-            }
-            root.present().unwrap();
-        }
-        if z == 75000000{
-            for i in 0 .. 40 {
-                for j in 0 .. 40{
-
-                    let i_ind = i;
-                    let j_ind = j;
-
-                    let s_ij = random_network[i_ind][j_ind].borrow();
-                    
-                    let k = i as f64;
-                    let l = j as f64;
-    
-                    chart.draw_series(PointSeries::of_element(
-                        vec![(k , l)],
-                        2,
-                        if *s_ij == SpinValue::Positive {                
-                        &RED
-                        }
-                        else {
-                            &GREEN
-                        },
-                        &|c, s, st| {
-                            return EmptyElement::at(c)    
-                            + Circle::new((0,0),s,st.filled()) 
-                            
-                        },
-                    )).unwrap();
-                        
-                }
-            }
-            root.present().unwrap();
-        } 
+      */ 
         //--------------------------------------------------  
            
         } 
@@ -397,18 +385,13 @@ fn main() {
                 let s_iplus1_j = random_network[i_ind_plus1][j_ind].borrow();
                 let s_iminus1_j = random_network[i_ind_minus1][j_ind].borrow();
                 let s_i_jplus1 = random_network[i_ind][j_ind_plus1].borrow();
-                let s_ijminus1 = random_network[i_ind][j_ind_minus1].borrow();
-                
-                let h_2 = visinho_num(s_ij, s_iplus1_j);
-                let h_3 = visinho_num(s_ij, s_iminus1_j);
-                let h_4 = visinho_num(s_ij, s_i_jplus1);
-                let h_5 = visinho_num(s_ij, s_ijminus1);
+                let s_ijminus1 = random_network[i_ind][j_ind_minus1].borrow();                
 
-                let vizinho = h_2 + h_3 + h_4 + h_5 ;
+                let vizinho = ( visinho_num(s_ij, s_iplus1_j) +  visinho_num(s_ij, s_iminus1_j) + visinho_num(s_ij,  s_i_jplus1) + visinho_num(s_ij, s_ijminus1))/2.0 ;
 
-                alpha = (alpha + vizinho)/2.0 ;
+                alpha = alpha + vizinho ;
 
-                let sqr : f64 = (-j * vizinho - h * s).powf(2.0);
+                let sqr : f64 = (j * (vizinho) + h * s).powf(2.0);
 
                 h_sqr  = sqr + h_sqr
 
@@ -420,26 +403,34 @@ fn main() {
 
         //Magnetização média
 
-        let m: f64 = s_total/(n_c*n_r);        
+        let m: f64 = (s_total/(n_c*n_r)).abs();        
 
         data_m[c].push(m) ;
 
         //Energia livre média
 
-        let h_medio: f64 = (-j * alpha - h * s_total)/(n_c*n_r);
+        let h_medio: f64 = ((-j * alpha - h * s_total)/(n_c*n_r)).abs();
 
         data_h_medio[c].push(h_medio) ;
 
         //Capacidade térmica
+        let mut c_v = 0.0;
+        let mut x_m = 0.0;
 
-        let c_v: f64 = (h_sqr/(n_c*n_r) - (h_medio).powf(2.0))/(t).powf(2.0);
-        
+        if t != 0.0 {  
+
+            c_v = (h_sqr/(n_c*n_r)- (h_medio).powf(2.0))/(t).powf(2.0);
+            
+           
+            //Suscetibilidade magnética
+    
+            x_m = (1.0 - (m).powf(2.0))/t ;
+        }
         data_c_v[c].push(c_v) ;
 
-        //Suscetibilidade magnética
-
-        let x_m: f64 = (n_c*n_r - (m).powf(2.0))/(t).powf(2.0) ;
-
+        //Suscetibilidade magnética      
+        
+    
         data_x_m[c].push(x_m) ;
 
         
@@ -462,7 +453,10 @@ fn main() {
 
         let x_m_str = format!("{:?}", data_x_m);
 
-        let path = Path::new("data_m.txt");
+        //Data 
+
+/*
+        let path = Path::new("data/data_m.txt");
         let display = path.display();
    
        
@@ -477,7 +471,7 @@ fn main() {
            Ok(_) => println!("successfully wrote to {}", display),
        } 
 
-       let path = Path::new("data_h_medio.txt");
+       let path = Path::new("data/data_h_medio.txt");
        let display = path.display();
    
        
@@ -492,7 +486,7 @@ fn main() {
            Ok(_) => println!("successfully wrote to {}", display),
        } 
 
-       let path = Path::new("data_c_v.txt");
+       let path = Path::new("data/data_c_v.txt");
        let display = path.display();
    
        
@@ -508,7 +502,72 @@ fn main() {
        } 
 
 
-       let path = Path::new("data_x_m.txt");
+       let path = Path::new("data/data_x_m.txt");
+       let display = path.display();
+   
+       
+       let mut file = match File::create(&path) {
+           Err(why) => panic!("couldn't create {}: {}", display, why),
+           Ok(file) => file,
+       };
+   
+       
+       match file.write_all(x_m_str.as_bytes()) {
+           Err(why) => panic!("couldn't write to {}: {}", display, why),
+           Ok(_) => println!("successfully wrote to {}", display),
+       }
+*/
+       //Data 1
+/*
+    
+        let path = Path::new("data1/data_m.txt");
+        let display = path.display(); 
+        
+   
+       
+        let mut file = match File::create(&path) {
+            Err(why) => panic!("couldn't create {}: {}", display, why),
+            Ok(file) => file,
+        };
+   
+       
+        match file.write_all(m_str.as_bytes()) {
+           Err(why) => panic!("couldn't write to {}: {}", display, why),
+           Ok(_) => println!("successfully wrote to {}", display),
+       } 
+
+       let path = Path::new("data1/data_h_medio.txt");
+       let display = path.display();
+   
+       
+       let mut file = match File::create(&path) {
+           Err(why) => panic!("couldn't create {}: {}", display, why),
+           Ok(file) => file,
+       };
+   
+       
+       match file.write_all(h_medio_str.as_bytes()) {
+           Err(why) => panic!("couldn't write to {}: {}", display, why),
+           Ok(_) => println!("successfully wrote to {}", display),
+       } 
+
+       let path = Path::new("data1/data_c_v.txt");
+       let display = path.display();
+   
+       
+       let mut file = match File::create(&path) {
+           Err(why) => panic!("couldn't create {}: {}", display, why),
+           Ok(file) => file,
+       };
+   
+       
+       match file.write_all(c_v_str.as_bytes()) {
+           Err(why) => panic!("couldn't write to {}: {}", display, why),
+           Ok(_) => println!("successfully wrote to {}", display),
+       } 
+
+
+       let path = Path::new("data1/data_x_m.txt");
        let display = path.display();
    
        
@@ -523,46 +582,128 @@ fn main() {
            Ok(_) => println!("successfully wrote to {}", display),
        }
 
+*/
+
+
+      //Data 0
+
+       
+        let path = Path::new("data0/data_m.txt");
+        let display = path.display(); 
+        
+   
+       
+        let mut file = match File::create(&path) {
+            Err(why) => panic!("couldn't create {}: {}", display, why),
+            Ok(file) => file,
+        };
+   
+       
+        match file.write_all(m_str.as_bytes()) {
+           Err(why) => panic!("couldn't write to {}: {}", display, why),
+           Ok(_) => println!("successfully wrote to {}", display),
+       } 
+
+       let path = Path::new("data0/data_h_medio.txt");
+       let display = path.display();
+   
+       
+       let mut file = match File::create(&path) {
+           Err(why) => panic!("couldn't create {}: {}", display, why),
+           Ok(file) => file,
+       };
+   
+       
+       match file.write_all(h_medio_str.as_bytes()) {
+           Err(why) => panic!("couldn't write to {}: {}", display, why),
+           Ok(_) => println!("successfully wrote to {}", display),
+       } 
+
+       let path = Path::new("data0/data_c_v.txt");
+       let display = path.display();
+   
+       
+       let mut file = match File::create(&path) {
+           Err(why) => panic!("couldn't create {}: {}", display, why),
+           Ok(file) => file,
+       };
+   
+       
+       match file.write_all(c_v_str.as_bytes()) {
+           Err(why) => panic!("couldn't write to {}: {}", display, why),
+           Ok(_) => println!("successfully wrote to {}", display),
+       } 
+
+
+       let path = Path::new("data0/data_x_m.txt");
+       let display = path.display();
+   
+       
+       let mut file = match File::create(&path) {
+           Err(why) => panic!("couldn't create {}: {}", display, why),
+           Ok(file) => file,
+       };
+   
+       
+       match file.write_all(x_m_str.as_bytes()) {
+           Err(why) => panic!("couldn't write to {}: {}", display, why),
+           Ok(_) => println!("successfully wrote to {}", display),
+       }
+
+
+
+
        //-----------------------------------------------
 
-       //Ultima representação gráfica
+       //Ultima representação gráfica 
 
-       for i in 0 .. 40 {
-        for j in 0 .. 40{
-
-            let i_ind = i;
-            let j_ind = j;
-
-            let s_ij = random_network[i_ind][j_ind].borrow();
-            
-            let k = i as f64;
-            let l = j as f64;
-
-            chart.draw_series(PointSeries::of_element(
-                vec![(k , l)],
-                2,
-                if *s_ij == SpinValue::Positive {                
-                &RED
-                }
-                else {
-                    &GREEN
-                },
-                &|c, s, st| {
-                    return EmptyElement::at(c)    
-                    + Circle::new((0,0),s,st.filled()) 
-                    
-                },
-            )).unwrap();
-                
-        }
-    }
-    root.present().unwrap(); 
-    //---------------------------------------------------
-
+       if grafico == true {               
     
+    
+        let mut chart = ChartBuilder::on(&root)
+        .caption(                
+        format!("Temperatura = {} ", t),
+        ("sans-serif", 10),
+        )
+        .build_cartesian_2d(0.0..40.0, 0.0..40.0).unwrap();
+        for i in 0 .. 40 {
+            for j in 0 .. 40{
 
+                let i_ind = i;
+                let j_ind = j;
 
-        
+                let s_ij = random_network[i_ind][j_ind].borrow();
+                
+                let k = i as f64;
+                let l = j as f64;
+                
+                
+
+                chart.draw_series(PointSeries::of_element(
+                    vec![(k , l)],
+                    2,
+                    if *s_ij == SpinValue::Positive {                
+                    &RED
+                    }
+                    else {
+                        &GREEN
+                    },
+                    &|c, s, st| {
+                        return EmptyElement::at(c)    
+                        + Circle::new((0,0),s,st.filled()) 
+                        
+                    },
+                )).unwrap();
+
+                
+                    
+            }
+        }
+            root.present().unwrap();
+
+    }
+       
+    //---------------------------------------------------     
         
     } 
 
